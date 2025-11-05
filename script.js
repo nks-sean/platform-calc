@@ -1,120 +1,75 @@
-const categoryRates = {
-  "Electronics": 4.5,
-  "Mobile & Gadgets": 4.5,
-  "Home Appliances": 3.8,
-  "Health & Beauty": 4.0,
-  "Fashion (Men/Women)": 5.0,
-  "Groceries & Pets": 3.0,
-  "Sports & Outdoor": 3.5,
-  "Baby & Toys": 3.5,
-  "Home & Living": 4.0,
-  "Automotive": 3.5,
-  "Books & Stationery": 3.0,
-  "Others": 4.0
-};
-
-function populateCategories(){
-  const sel = document.getElementById('category');
-  for (const [name, rate] of Object.entries(categoryRates)){
-    const opt = document.createElement('option');
-    opt.value = rate;
-    opt.textContent = `${name} — ${rate}%`;
-    sel.appendChild(opt);
-  }
-  onCategoryChange();
+function toggleFreeShip() {
+  document.getElementById("freeShipInput").style.display =
+    document.getElementById("freeShipChk").checked ? "block" : "none";
 }
 
-function onCategoryChange(){
-  const sel = document.getElementById('category');
-  const rate = parseFloat(sel.value);
-  document.getElementById('commissionRate').value = rate.toFixed(2);
-  document.getElementById('categoryNote').textContent = 
-    `Commission default: ${rate.toFixed(2)}%. Edit if your Seller Centre differs.`;
-  calculateAndShow(true);
+function toggleCoins() {
+  document.getElementById("coinsInput").style.display =
+    document.getElementById("coinsChk").checked ? "block" : "none";
 }
 
-function toggleFreeShip(){
-  const chk = document.getElementById('freeShipChk');
-  document.getElementById('freeShipInput').style.display = chk.checked ? 'block':'none';
-  calculateAndShow(true);
-}
-function toggleCoins(){
-  const chk = document.getElementById('coinsChk');
-  document.getElementById('coinsInput').style.display = chk.checked ? 'block':'none';
-  calculateAndShow(true);
-}
+function calculateAndShow() {
+  const price = parseFloat(document.getElementById("sellingPrice").value) || 0;
+  const cost = parseFloat(document.getElementById("productCost").value) || 0;
+  const qty = parseInt(document.getElementById("quantity").value) || 1;
+  const voucher = parseFloat(document.getElementById("voucherValue").value) || 0;
+  const commissionRate = parseFloat(document.getElementById("commissionRate").value) / 100;
+  const transactionRate = parseFloat(document.getElementById("transactionRate").value) / 100;
+  const platformFee = parseFloat(document.getElementById("platformFee").value) || 0;
+  const sstRate = parseFloat(document.getElementById("sstRate").value) / 100;
 
-function formatRM(v){ return isNaN(v) ? 'RM0.00' : 'RM'+v.toFixed(2); }
+  const coinsEnabled = document.getElementById("coinsChk").checked;
+  const coinsRate = coinsEnabled ? parseFloat(document.getElementById("coinsRate").value) / 100 : 0;
+  const freeShipEnabled = document.getElementById("freeShipChk").checked;
+  const shipContribution = freeShipEnabled ? parseFloat(document.getElementById("sellerShipContribution").value) : 0;
 
-function calculateAndShow(silent=false){
-  const sellingPrice = +document.getElementById('sellingPrice').value || 0;
-  const qty = +document.getElementById('quantity').value || 1;
-  const productCost = +document.getElementById('productCost').value || 0;
-  const voucherValue = +document.getElementById('voucherValue').value || 0;
-  const commissionRate = (+document.getElementById('commissionRate').value||0)/100;
-  const transactionRate = (+document.getElementById('transactionRate').value||0)/100;
-  const paymentRate = (+document.getElementById('paymentRate').value||0)/100;
-  const platformFeePerOrder = +document.getElementById('platformFee').value || 0;
-  const sstRate = (+document.getElementById('sstRate').value||0)/100;
-  const freeShipJoined = document.getElementById('freeShipChk').checked;
-  const sellerShipContribution = freeShipJoined ? (+document.getElementById('sellerShipContribution').value||0) : 0;
-  const coinsJoined = document.getElementById('coinsChk').checked;
-  const coinsRate = coinsJoined ? (+document.getElementById('coinsRate').value||0)/100 : 0;
+  const grossRevenue = price * qty;
+  const commissionFee = (price - voucher) * commissionRate;
+  const transactionFee = price * transactionRate;
+  const platformFeeTotal = platformFee * qty;
+  const sstAmount = (commissionFee + transactionFee + platformFeeTotal) * sstRate;
+  const coinsCost = price * coinsRate;
+  const shipSubsidy = shipContribution;
 
-  const netBase = Math.max(0, sellingPrice - voucherValue);
-  const commissionFee = netBase * commissionRate;
-  const transactionFee = sellingPrice * transactionRate;
-  const paymentFee = sellingPrice * paymentRate;
-  const platformFee = platformFeePerOrder;
-  const coinsCost = sellingPrice * coinsRate;
-  const shippingSubsidy = sellerShipContribution;
-  const sstAmount = (commissionFee + transactionFee + paymentFee + platformFee) * sstRate;
+  const totalShopeeCosts = commissionFee + transactionFee + platformFeeTotal + sstAmount + coinsCost + shipSubsidy + voucher;
+  const totalExpense = totalShopeeCosts + (cost * qty);
+  const netProfit = grossRevenue - totalExpense;
+  const profitMargin = grossRevenue > 0 ? (netProfit / grossRevenue) * 100 : 0;
 
-  const totalShopeeCosts = commissionFee + transactionFee + paymentFee + platformFee + sstAmount + coinsCost + voucherValue + shippingSubsidy;
-  const totalExpense = productCost + totalShopeeCosts;
+  const set = (id, val) => document.getElementById(id).innerText = "RM" + val.toFixed(2);
+  set("grossRevenue", grossRevenue);
+  set("voucherCost", voucher);
+  set("commissionFee", commissionFee);
+  set("transactionFee", transactionFee);
+  set("platformFeeResult", platformFeeTotal);
+  set("sstAmount", sstAmount);
+  set("coinsCost", coinsCost);
+  set("shipSubsidy", shipSubsidy);
+  set("totalShopeeCosts", totalShopeeCosts);
+  set("productCostResult", cost * qty);
+  set("totalExpense", totalExpense);
+const netProfitEl = document.getElementById("netProfit");
+netProfitEl.innerText = "RM" + netProfit.toFixed(2);
 
-  const grossRevenue = sellingPrice * qty;
-  const netProfit = (sellingPrice - totalExpense) * qty;
-  const margin = sellingPrice>0 ? ((sellingPrice - totalExpense)/sellingPrice*100) : 0;
-
-  document.getElementById('grossRevenue').textContent = formatRM(grossRevenue);
-  document.getElementById('voucherCost').textContent = formatRM(voucherValue);
-  document.getElementById('commissionFee').textContent = formatRM(commissionFee);
-  document.getElementById('transactionFee').textContent = formatRM(transactionFee);
-  document.getElementById('paymentFee').textContent = formatRM(paymentFee);
-  document.getElementById('platformFeeResult').textContent = formatRM(platformFee);
-  document.getElementById('sstAmount').textContent = formatRM(sstAmount);
-  document.getElementById('coinsCost').textContent = formatRM(coinsCost);
-  document.getElementById('shipSubsidy').textContent = formatRM(shippingSubsidy);
-  document.getElementById('totalShopeeCosts').textContent = formatRM(totalShopeeCosts);
-  document.getElementById('productCostResult').textContent = formatRM(productCost);
-  document.getElementById('totalExpense').textContent = formatRM(totalExpense);
-  document.getElementById('netProfit').textContent = formatRM(netProfit/qty);
-  document.getElementById('profitMargin').textContent = margin.toFixed(2)+'%';
+// Add green if positive, red if negative
+netProfitEl.classList.remove("positive", "negative");
+if (netProfit > 0) netProfitEl.classList.add("positive");
+else if (netProfit < 0) netProfitEl.classList.add("negative");
+  document.getElementById("profitMargin").innerText = profitMargin.toFixed(2) + "%";
 }
 
-function resetToDefaults(){
-  document.getElementById('sellingPrice').value = 100;
-  document.getElementById('quantity').value = 1;
-  document.getElementById('productCost').value = 60;
-  document.getElementById('voucherValue').value = 0;
-  document.getElementById('transactionRate').value = 3.78;
-  document.getElementById('paymentRate').value = 2.00;
-  document.getElementById('platformFee').value = 0.50;
-  document.getElementById('sstRate').value = 8.00;
-  document.getElementById('freeShipChk').checked = false;
-  document.getElementById('coinsChk').checked = false;
-  document.getElementById('sellerShipContribution').value = 4.00;
-  document.getElementById('coinsRate').value = 1.0;
-  onCategoryChange();
-  calculateAndShow(true);
+function resetToDefaults() {
+  document.getElementById("sellingPrice").value = 100;
+  document.getElementById("productCost").value = 60;
+  document.getElementById("quantity").value = 1;
+  document.getElementById("voucherValue").value = 0;
+  document.getElementById("commissionRate").value = 3.0;
+  document.getElementById("transactionRate").value = 2.12;
+  document.getElementById("platformFee").value = 0.50;
+  document.getElementById("sstRate").value = 8.0;
+  document.getElementById("coinsChk").checked = false;
+  document.getElementById("freeShipChk").checked = false;
+  toggleCoins();
+  toggleFreeShip();
+  calculateAndShow();
 }
-
-populateCategories();
-resetToDefaults();
-
-['sellingPrice','productCost','voucherValue','quantity','commissionRate','transactionRate','paymentRate','platformFee','sstRate','sellerShipContribution','coinsRate']
-.forEach(id=>{
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', ()=> calculateAndShow(true));
-});
