@@ -34,54 +34,44 @@
 
       <!-- Program participation -->
       <div class="section">
-        <h3>Program participation</h3>
-
-        <div class="checkbox">
-          <input id="freeShipChk" type="checkbox" onchange="toggleFreeShip()"/>
-          <label for="freeShipChk">Joined Free Shipping Program</label>
-        </div>
-        <div id="freeShipInput" style="display:none;margin-bottom:8px">
-          <label>Seller shipping contribution (RM)</label>
-          <input type="number" id="sellerShipContribution" step="0.01" value="0.00" />
-        </div>
-
-        <div class="checkbox">
-          <input id="coinsChk" type="checkbox" onchange="toggleCoins()"/>
-          <label for="coinsChk">Joined Shopee Coins Cashback Program</label>
-        </div>
-        <div id="coinsInput" style="display:none;margin-bottom:8px">
-          <label>Coins cashback rate (%)</label>
-          <input type="number" id="coinsRate" step="0.1" value="1.0" />
-        </div>
-
+        <h3>Seller promotion</h3>
         <label>Seller voucher given (RM)</label>
         <input type="number" id="voucherValue" step="0.01" value="0.00" />
+
+        <div class="form-group" style="margin-top:8px;">
+          <label for="buyerShippingFee">Shipping Fee Paid by Buyer (RM)</label>
+          <input type="number" id="buyerShippingFee" placeholder="e.g. 5.00" step="0.01" value="0.00">
+        </div>
       </div>
 
       <!-- Shopee fees -->
       <div class="section">
         <h3>Shopee fees (editable)</h3>
-
         <div class="grid-2">
           <div>
             <label>Commission rate (%)</label>
-            <input type="number" id="commissionRate" step="0.01" value="3.00" />
+            <input type="number" id="commissionRate" step="0.01" value="8.00" />
           </div>
           <div>
             <label>Transaction fee rate (%)</label>
-            <input type="number" id="transactionRate" step="0.01" value="2.12" />
+            <input type="number" id="transactionRate" step="0.01" value="3.5" />
           </div>
         </div>
 
         <div class="grid-2" style="margin-top:8px">
           <div>
+            <label>Shopee service fee (%)</label>
+            <input type="number" id="serviceFeeRate" step="0.01" value="0" />
+          </div>
+          <div>
             <label>Platform support fee (RM)</label>
             <input type="number" id="platformFee" step="0.01" value="0.50" />
           </div>
-          <div>
-            <label>SST rate (%)</label>
-            <input type="number" id="sstRate" step="0.01" value="8.00" />
-          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>SST rate (%)</label>
+          <input type="number" id="sstRate" step="0.01" value="8.00" />
         </div>
       </div>
 
@@ -90,7 +80,6 @@
         <button class="primary" onclick="calculateAndShow()">Calculate / Refresh</button>
         <button class="ghost" onclick="resetToDefaults()">Reset</button>
       </div>
-      <div class="footer tiny">All rates verified from Shopee Malaysia Seller Centre (2025).</div>
     </div>
 
     <!-- RIGHT: Results -->
@@ -101,10 +90,9 @@
         <div class="result-line"><div class="muted">Seller voucher</div><div id="voucherCost">RM0.00</div></div>
         <div class="result-line"><div class="muted">Commission</div><div id="commissionFee">RM0.00</div></div>
         <div class="result-line"><div class="muted">Transaction fee</div><div id="transactionFee">RM0.00</div></div>
+        <div class="result-line"><div class="muted">Shopee service fee</div><div id="serviceFee">RM0.00</div></div>
         <div class="result-line"><div class="muted">Platform support fee</div><div id="platformFeeResult">RM0.00</div></div>
         <div class="result-line"><div class="muted">SST on Shopee fees</div><div id="sstAmount">RM0.00</div></div>
-        <div class="result-line"><div class="muted">Coins cashback</div><div id="coinsCost">RM0.00</div></div>
-        <div class="result-line"><div class="muted">Shipping subsidy</div><div id="shipSubsidy">RM0.00</div></div>
 
         <div class="result-line total danger"><div>Total Shopee & program costs</div><div id="totalShopeeCosts">RM0.00</div></div>
         <div class="result-line danger"><div>Product cost</div><div id="productCostResult">RM0.00</div></div>
